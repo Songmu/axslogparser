@@ -7,8 +7,8 @@ import (
 )
 
 var loc = func() *time.Location {
-	l, _ := time.LoadLocation("Asia/Tokyo")
-	return l
+	t, _ := time.Parse(clfTimeLayout, "11/Jun/2017:05:56:04 +0900")
+	return t.Location()
 }()
 
 var parseTests = []struct {
@@ -30,11 +30,48 @@ var parseTests = []struct {
 			UA:      "mackerel-http-checker/0.0.1",
 		},
 	},
+	{
+		Name:  "common",
+		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 200 741`,
+		Output: Log{
+			Host:    "10.0.0.11",
+			User:    "-",
+			Time:    time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
+			Request: "GET / HTTP/1.1",
+			Status:  200,
+			Size:    741,
+		},
+	},
+	{
+		Name:  "common with empty response",
+		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 204 -`,
+		Output: Log{
+			Host:    "10.0.0.11",
+			User:    "-",
+			Time:    time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
+			Request: "GET / HTTP/1.1",
+			Status:  204,
+			Size:    0,
+		},
+	},
+	{
+		Name:  "common with vhost",
+		Input: `log.example.com 10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 404 741`,
+		Output: Log{
+			VirtualHost: "log.example.com",
+			Host:        "10.0.0.11",
+			User:        "-",
+			Time:        time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
+			Request:     "GET / HTTP/1.1",
+			Status:      404,
+			Size:        741,
+		},
+	},
 }
 
 func TestParse(t *testing.T) {
 	for _, tt := range parseTests {
-		l, err := Parse(tt.Input, loc)
+		l, err := Parse(tt.Input)
 		if err != nil {
 			t.Errorf("%s(err): error should be nil but: %+v", tt.Name, err)
 			continue

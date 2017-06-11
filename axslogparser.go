@@ -13,11 +13,11 @@ var logRe = regexp.MustCompile(
 	`(?:(?P<vhost>\S+)\s)?` + // %v(The canonical ServerName/virtual host)
 		`(?P<remote_addr>\S+)\s` + // %h(Remote Hostname) $remote_addr
 		`\S+\s+` + // %l(Remote Logname)
-		`(?P<remote_user>\S+)\s+` + // $remote_user
+		`(?P<remote_user>\S+)\s` + // $remote_user
 		`\[(?P<time_local>[^]]+)\]\s` + // $time_local
 		fmt.Sprintf(part, "request") + `\s` + // $request
 		`(?P<status>[0-9]{3})\s` + // $status
-		`(?P<body_bytes_sent>[0-9]+)` + // $body_bytes_sent
+		`(?P<body_bytes_sent>-|(?:[0-9]+))` + // $body_bytes_sent
 		`(?:\s` + // combined option start
 		fmt.Sprintf(part, "http_referer") + `\s` + // $http_referer
 		fmt.Sprintf(part, "http_user_agent") + // $http_user_agent
@@ -35,7 +35,9 @@ type Log struct {
 	UA          string
 }
 
-func Parse(line string, loc *time.Location) (*Log, error) {
+const clfTimeLayout = "02/Jan/2006:15:04:05 -0700"
+
+func Parse(line string) (*Log, error) {
 	matches := logRe.FindStringSubmatch(line)
 	if len(matches) < 1 {
 		return nil, fmt.Errorf("not matched")
@@ -50,13 +52,16 @@ func Parse(line string, loc *time.Location) (*Log, error) {
 		case "remote_user":
 			l.User = matches[i]
 		case "time_local":
-			const timeLayout = "02/Jan/2006:15:04:05 -0700"
-			l.Time, _ = time.ParseInLocation(timeLayout, matches[i], loc)
+			l.Time, _ = time.Parse(clfTimeLayout, matches[i])
 		case "request":
 			l.Request = dequote(matches[i])
 		case "status":
 			l.Status, _ = strconv.Atoi(matches[i])
 		case "body_bytes_sent":
+			v := matches[i]
+			if v == "-" {
+				v = "0"
+			}
 			l.Size, _ = strconv.ParseUint(matches[i], 10, 64)
 		case "http_referer":
 			l.Referer = dequote(matches[i])
