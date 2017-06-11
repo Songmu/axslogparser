@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -75,6 +76,9 @@ func Parse(line string) (*Log, error) {
 }
 
 func unescape(item string) string {
+	if !strings.ContainsRune(item, '\\') {
+		return item
+	}
 	buf := &bytes.Buffer{}
 	escaped := false
 	for i := 0; i < len(item); i++ {
@@ -100,9 +104,6 @@ func unescape(item string) string {
 		default:
 			buf.WriteByte(c)
 		}
-	}
-	if escaped {
-		buf.WriteByte('\\')
 	}
 	return buf.String()
 }
