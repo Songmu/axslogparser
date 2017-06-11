@@ -1,10 +1,22 @@
 package axslogparser
 
-import "fmt"
+import (
+	"time"
+
+	"github.com/Songmu/go-ltsv"
+	"github.com/pkg/errors"
+)
 
 type LTSV struct {
 }
 
 func (lv *LTSV) Parse(line string) (*Log, error) {
-	return nil, fmt.Errorf("not implemented")
+	l := &Log{}
+	err := ltsv.Unmarshal([]byte(line), l)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to parse ltsvlog")
+	}
+	l.Time, _ = time.Parse(clfTimeLayout, l.TimeStr)
+
+	return l, nil
 }

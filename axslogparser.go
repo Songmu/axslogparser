@@ -10,15 +10,18 @@ type Parser interface {
 }
 
 type Log struct {
-	VirtualHost string
+	VirtualHost string `ltsv:"vhost"`
 	Host        string
 	User        string
-	Time        time.Time
-	Request     string
+	Time        time.Time `ltsv:"-"`
+	TimeStr     string    `ltsv:"time"`
+	Request     string    `ltsv:"req"`
 	Status      int
 	Size        uint64
 	Referer     string
 	UA          string
+	ReqTime     *float64
+	AppTime     *float64
 }
 
 const clfTimeLayout = "02/Jan/2006:15:04:05 -0700"
@@ -28,7 +31,7 @@ func GuessParser(line string) (Parser, *Log, error) {
 	if strings.Contains(line, "\thost:") {
 		p = &LTSV{}
 		l, err := p.Parse(line)
-		if err != nil {
+		if err == nil {
 			return p, l, err
 		}
 	}

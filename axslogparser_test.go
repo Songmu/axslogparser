@@ -12,6 +12,10 @@ var loc = func() *time.Location {
 	return t.Location()
 }()
 
+func pfloat64(f float64) *float64 {
+	return &f
+}
+
 var parseTests = []struct {
 	Name   string
 	Input  string
@@ -83,6 +87,28 @@ var parseTests = []struct {
 		},
 	},
 	{
+		Name: "ltsv",
+		Input: "time:08/Mar/2017:14:12:40 +0900\t" +
+			"host:192.0.2.1\t" +
+			"req:POST /api/v0/tsdb HTTP/1.1\t" +
+			"status:200\t" +
+			"size:36\t" +
+			"ua:mackerel-agent/0.31.2 (Revision 775fad2)\t" +
+			"reqtime:0.087\t" +
+			"vhost:mackerel.io",
+		Output: Log{
+			VirtualHost: "mackerel.io",
+			Host:        "192.0.2.1",
+			Time:        time.Date(2017, time.March, 8, 14, 12, 40, 0, loc),
+			TimeStr:     "08/Mar/2017:14:12:40 +0900",
+			Request:     "POST /api/v0/tsdb HTTP/1.1",
+			Status:      200,
+			Size:        36,
+			UA:          "mackerel-agent/0.31.2 (Revision 775fad2)",
+			ReqTime:     pfloat64(0.087),
+		},
+	},
+	{
 		Name:  "unescape(trailing space after escaped double quote) (TODO)",
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET /?foo=bar HTTP/1.1" 200 741 "\" "`,
 		Output: Log{
@@ -99,9 +125,9 @@ var parseTests = []struct {
 
 func TestParse(t *testing.T) {
 	for _, tt := range parseTests {
+		t.Logf("testing: %s\n", tt.Name)
 		if strings.Contains(tt.Name, "(TODO)") {
 			t.Skipf("skip test: %s", tt.Name)
-			continue
 		}
 		l, err := Parse(tt.Input)
 		if err != nil {
