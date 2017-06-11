@@ -14,7 +14,7 @@ var logRe = regexp.MustCompile(
 		`(?P<remote_addr>\S+)\s` + // %h(Remote Hostname) $remote_addr
 		`\S+\s+` + // %l(Remote Logname)
 		`(?P<remote_user>\S+)\s` + // $remote_user
-		`\[(?P<time_local>[^]]+)\]\s` + // $time_local
+		`\[(?P<time_local>\d{2}/\w{3}/\d{2}(?:\d{2}:){3}\d{2} [-+]\d{4})\]\s` + // $time_local
 		fmt.Sprintf(part, "request") + `\s` + // $request
 		`(?P<status>[0-9]{3})\s` + // $status
 		`(?P<body_bytes_sent>-|(?:[0-9]+))` + // $body_bytes_sent
