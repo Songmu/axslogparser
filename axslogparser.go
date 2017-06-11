@@ -1,13 +1,14 @@
 package axslogparser
 
 import (
+	"bytes"
 	"fmt"
 	"regexp"
 	"strconv"
 	"time"
 )
 
-var part = `"(?P<%s>(?:[^"]*(?:\\")?)*)"`
+var part = `"(?P<%s>(?:[^"]*(?:\\")?)*)"(?:\s|$)`
 
 var logRe = regexp.MustCompile(
 	`(?:(?P<vhost>\S+)\s)?` + // %v(The canonical ServerName/virtual host)
@@ -16,10 +17,10 @@ var logRe = regexp.MustCompile(
 		`(?P<remote_user>\S+)\s` + // $remote_user
 		`\[(?P<time_local>\d{2}/\w{3}/\d{2}(?:\d{2}:){3}\d{2} [-+]\d{4})\]\s` + // $time_local
 		fmt.Sprintf(part, "request") + // $request
-		`\s(?P<status>[0-9]{3})\s` + // $status
+		`(?P<status>[0-9]{3})\s` + // $status
 		`(?P<body_bytes_sent>-|(?:[0-9]+))(?:$|\s)` + // $body_bytes_sent
 		`(?:` + // combined option start
-		fmt.Sprintf(part, "http_referer") + `\s` + // $http_referer
+		fmt.Sprintf(part, "http_referer") + // $http_referer
 		fmt.Sprintf(part, "http_user_agent") + // $http_user_agent
 		`)?`) // combined option end
 
@@ -54,7 +55,7 @@ func Parse(line string) (*Log, error) {
 		case "time_local":
 			l.Time, _ = time.Parse(clfTimeLayout, matches[i])
 		case "request":
-			l.Request = dequote(matches[i])
+			l.Request = unescape(matches[i])
 		case "status":
 			l.Status, _ = strconv.Atoi(matches[i])
 		case "body_bytes_sent":
@@ -64,16 +65,44 @@ func Parse(line string) (*Log, error) {
 			}
 			l.Size, _ = strconv.ParseUint(matches[i], 10, 64)
 		case "http_referer":
-			l.Referer = dequote(matches[i])
+			l.Referer = unescape(matches[i])
 		case "http_user_agent":
-			l.UA = dequote(matches[i])
+			l.UA = unescape(matches[i])
 		}
 	}
 	// TODO parse request into method, path and proto
 	return l, nil
 }
 
-func dequote(item string) string {
-	// TOOD
-	return item
+func unescape(item string) string {
+	buf := &bytes.Buffer{}
+	escaped := false
+	for i := 0; i < len(item); i++ {
+		c := item[i]
+		if !escaped && c == '\\' {
+			escaped = true
+			continue
+		}
+		if !escaped {
+			buf.WriteByte(c)
+			continue
+		}
+		escaped = false
+		switch c {
+		case 'n':
+			buf.WriteByte('\n')
+		case 't':
+			buf.WriteByte('\t')
+		case '\\':
+			buf.WriteByte('\\')
+		case '"':
+			buf.WriteByte('"')
+		default:
+			buf.WriteByte(c)
+		}
+	}
+	if escaped {
+		buf.WriteByte('\\')
+	}
+	return buf.String()
 }

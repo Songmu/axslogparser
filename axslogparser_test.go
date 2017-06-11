@@ -2,6 +2,7 @@ package axslogparser
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -67,10 +68,41 @@ var parseTests = []struct {
 			Size:        741,
 		},
 	},
+	{
+		Name:  "unescape",
+		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET /?foo=bar HTTP/1.1" 200 741 "\\\thoge" "UA \"fake\""`,
+		Output: Log{
+			Host:    "10.0.0.11",
+			User:    "-",
+			Time:    time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
+			Request: "GET /?foo=bar HTTP/1.1",
+			Status:  200,
+			Size:    741,
+			Referer: "\\\thoge",
+			UA:      `UA "fake"`,
+		},
+	},
+	{
+		Name:  "unescape(trailing space after escaped double quote) (TODO)",
+		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET /?foo=bar HTTP/1.1" 200 741 "\" "`,
+		Output: Log{
+			Host:    "10.0.0.11",
+			User:    "-",
+			Time:    time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
+			Request: "GET /?foo=bar HTTP/1.1",
+			Status:  200,
+			Size:    741,
+			Referer: `" `,
+		},
+	},
 }
 
 func TestParse(t *testing.T) {
 	for _, tt := range parseTests {
+		if strings.Contains(tt.Name, "(TODO)") {
+			t.Skipf("skip test: %s", tt.Name)
+			continue
+		}
 		l, err := Parse(tt.Input)
 		if err != nil {
 			t.Errorf("%s(err): error should be nil but: %+v", tt.Name, err)
