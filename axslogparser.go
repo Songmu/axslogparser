@@ -10,18 +10,22 @@ type Parser interface {
 }
 
 type Log struct {
-	VirtualHost string `ltsv:"vhost"`
-	Host        string
-	User        string
-	Time        time.Time `ltsv:"-"`
-	TimeStr     string    `ltsv:"time"`
-	Request     string    `ltsv:"req"`
-	Status      int
-	Size        uint64
-	Referer     string
-	UA          string
-	ReqTime     *float64
-	AppTime     *float64
+	VirtualHost  string `ltsv:"vhost"`
+	Host         string
+	User         string
+	Time         time.Time `ltsv:"-"`
+	TimeStr      string    `ltsv:"time"`
+	Request      string    `ltsv:"req"`
+	Status       int
+	Size         uint64
+	Referer      string
+	UA           string
+	ReqTime      *float64
+	AppTime      *float64
+	ForwardedFor string
+	URI          string
+	Protocol     string
+	Method       string
 }
 
 const clfTimeLayout = "02/Jan/2006:15:04:05 -0700"
