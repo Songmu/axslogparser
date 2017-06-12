@@ -22,6 +22,7 @@ type Log struct {
 	UA           string
 	ReqTime      *float64
 	AppTime      *float64
+	TakenSec     *float64 `ltsv:"taken_sec"` // Hatena specific
 	ForwardedFor string
 	URI          string
 	Protocol     string

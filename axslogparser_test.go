@@ -95,6 +95,7 @@ var parseTests = []struct {
 			"size:36\t" +
 			"ua:mackerel-agent/0.31.2 (Revision 775fad2)\t" +
 			"reqtime:0.087\t" +
+			"taken_sec:0.087\t" +
 			"vhost:mackerel.io",
 		Output: Log{
 			VirtualHost: "mackerel.io",
@@ -106,6 +107,7 @@ var parseTests = []struct {
 			Size:        36,
 			UA:          "mackerel-agent/0.31.2 (Revision 775fad2)",
 			ReqTime:     pfloat64(0.087),
+			TakenSec:    pfloat64(0.087),
 		},
 	},
 	{
