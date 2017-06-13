@@ -12,7 +12,7 @@ axslogparser
 
 ## Description
 
-An accesslog parser supports apache log (common and combined) and ltsv access log.
+An accesslog parser supports apache log (common and combined) and ltsv accesslog (http://ltsv.org).
 
 ## Author
 
