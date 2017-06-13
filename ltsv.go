@@ -7,9 +7,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+// LTSV access log parser
 type LTSV struct {
 }
 
+// Parse for Parser interface
 func (lv *LTSV) Parse(line string) (*Log, error) {
 	l := &Log{}
 	err := ltsv.Unmarshal([]byte(line), l)

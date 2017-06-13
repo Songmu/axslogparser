@@ -5,10 +5,12 @@ import (
 	"time"
 )
 
+// Parser is the interface for accesslog
 type Parser interface {
 	Parse(string) (*Log, error)
 }
 
+// Log is the struct stored parsed result of single line of accesslog
 type Log struct {
 	VirtualHost  string `ltsv:"vhost"`
 	Host         string
@@ -48,6 +50,7 @@ func (l *Log) breakdownRequest() {
 
 const clfTimeLayout = "02/Jan/2006:15:04:05 -0700"
 
+// GuessParser guesses the parser from line
 func GuessParser(line string) (Parser, *Log, error) {
 	var p Parser
 	if strings.Contains(line, "\thost:") {
@@ -65,6 +68,7 @@ func GuessParser(line string) (Parser, *Log, error) {
 	return p, l, nil
 }
 
+// Parse log line
 func Parse(line string) (*Log, error) {
 	_, l, err := GuessParser(line)
 	return l, err

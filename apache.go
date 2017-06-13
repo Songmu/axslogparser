@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+
+// Apache log parser
 type Apache struct {
 }
 
@@ -28,6 +30,7 @@ var logRe = regexp.MustCompile(
 		fmt.Sprintf(part, "http_user_agent") + // $http_user_agent
 		`)?`) // combined option end
 
+// Parse for Parser interface
 func (ap *Apache) Parse(line string) (*Log, error) {
 	matches := logRe.FindStringSubmatch(line)
 	if len(matches) < 1 {
