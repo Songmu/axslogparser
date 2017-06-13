@@ -22,7 +22,7 @@ var parseTests = []struct {
 	Output Log
 }{
 	{
-		Name:  "combined",
+		Name:  "[Apache] combined",
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 200 741 "-" "mackerel-http-checker/0.0.1" "-"`,
 		Output: Log{
 			Host:     "10.0.0.11",
@@ -39,7 +39,7 @@ var parseTests = []struct {
 		},
 	},
 	{
-		Name:  "common",
+		Name:  "[Apache] common",
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 200 741`,
 		Output: Log{
 			Host:     "10.0.0.11",
@@ -54,7 +54,7 @@ var parseTests = []struct {
 		},
 	},
 	{
-		Name:  "common with empty response",
+		Name:  "[Apache] common with empty response",
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 204 -`,
 		Output: Log{
 			Host:     "10.0.0.11",
@@ -69,7 +69,7 @@ var parseTests = []struct {
 		},
 	},
 	{
-		Name:  "common with vhost",
+		Name:  "[Apache] common with vhost",
 		Input: `log.example.com 10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 404 741`,
 		Output: Log{
 			VirtualHost: "log.example.com",
@@ -85,7 +85,7 @@ var parseTests = []struct {
 		},
 	},
 	{
-		Name:  "unescape",
+		Name:  "[Apache] unescape",
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET /?foo=bar HTTP/1.1" 200 741 "\\\thoge" "UA \"fake\""`,
 		Output: Log{
 			Host:     "10.0.0.11",
