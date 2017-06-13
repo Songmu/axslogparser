@@ -81,8 +81,6 @@ func takeQuoted(line string) (string, string) {
 				escaped = true
 				continue
 			}
-		}
-		if !escaped {
 			buf.WriteByte(c)
 			continue
 		}
