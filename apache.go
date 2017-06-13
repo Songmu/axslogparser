@@ -60,7 +60,7 @@ func (ap *Apache) Parse(line string) (*Log, error) {
 			l.UA = unescape(matches[i])
 		}
 	}
-	// TODO parse request into method, path and proto
+	l.breakdownRequest()
 	return l, nil
 }
 

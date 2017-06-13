@@ -29,6 +29,23 @@ type Log struct {
 	Method       string
 }
 
+func (l *Log) breakdownRequest() {
+	if l.URI != "" && l.Protocol != "" && l.Method != "" {
+		return
+	}
+	stuff := strings.Fields(l.Request)
+	if len(stuff) > 0 && l.Method == "" {
+		l.Method = stuff[0]
+	}
+	if len(stuff) > 1 && l.URI == "" {
+		l.URI = stuff[1]
+	}
+	if len(stuff) > 2 && l.Protocol == "" {
+		l.Protocol = stuff[2]
+	}
+	return
+}
+
 const clfTimeLayout = "02/Jan/2006:15:04:05 -0700"
 
 func GuessParser(line string) (Parser, *Log, error) {
