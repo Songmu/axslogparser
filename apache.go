@@ -9,7 +9,6 @@ import (
 	"time"
 )
 
-
 // Apache log parser
 type Apache struct {
 }
@@ -52,10 +51,6 @@ func (ap *Apache) Parse(line string) (*Log, error) {
 		case "status":
 			l.Status, _ = strconv.Atoi(matches[i])
 		case "body_bytes_sent":
-			v := matches[i]
-			if v == "-" {
-				v = "0"
-			}
 			l.Size, _ = strconv.ParseUint(matches[i], 10, 64)
 		case "http_referer":
 			l.Referer = unescape(matches[i])

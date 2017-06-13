@@ -1,9 +1,11 @@
 package axslogparser
 
 import (
+	"bytes"
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -11,21 +13,13 @@ import (
 type Apache2 struct {
 }
 
-var part2 = `"(?P<%s>(?:[^"]*(?:\\")?)*)"(?:\s|$)`
-
 var logRe2 = regexp.MustCompile(
 	`(?:(?P<vhost>\S+)\s)?` + // %v(The canonical ServerName/virtual host)
 		`(?P<remote_addr>\S+)\s` + // %h(Remote Hostname) $remote_addr
 		`\S+\s+` + // %l(Remote Logname)
 		`(?P<remote_user>\S+)\s` + // $remote_user
 		`\[(?P<time_local>\d{2}/\w{3}/\d{2}(?:\d{2}:){3}\d{2} [-+]\d{4})\]\s` + // $time_local
-		fmt.Sprintf(part2, "request") + // $request
-		`(?P<status>[0-9]{3})\s` + // $status
-		`(?P<body_bytes_sent>-|(?:[0-9]+))(?:$|\s)` + // $body_bytes_sent
-		`(?:` + // combined option start
-		fmt.Sprintf(part2, "http_referer") + // $http_referer
-		fmt.Sprintf(part2, "http_user_agent") + // $http_user_agent
-		`)?`) // combined option end
+		`(?P<rest>.*)`)
 
 // Parse for Parser interface
 func (ap *Apache2) Parse(line string) (*Log, error) {
@@ -33,6 +27,7 @@ func (ap *Apache2) Parse(line string) (*Log, error) {
 	if len(matches) < 1 {
 		return nil, fmt.Errorf("not matched")
 	}
+	var rest string
 	l := &Log{}
 	for i, name := range logRe2.SubexpNames() {
 		switch name {
@@ -44,22 +39,66 @@ func (ap *Apache2) Parse(line string) (*Log, error) {
 			l.User = matches[i]
 		case "time_local":
 			l.Time, _ = time.Parse(clfTimeLayout, matches[i])
-		case "request":
-			l.Request = unescape(matches[i])
-		case "status":
-			l.Status, _ = strconv.Atoi(matches[i])
-		case "body_bytes_sent":
-			v := matches[i]
-			if v == "-" {
-				v = "0"
-			}
-			l.Size, _ = strconv.ParseUint(matches[i], 10, 64)
-		case "http_referer":
-			l.Referer = unescape(matches[i])
-		case "http_user_agent":
-			l.UA = unescape(matches[i])
+		case "rest":
+			rest = matches[i]
 		}
 	}
+	l.Request, rest = takeQuoted(rest)
+	matches = strings.Fields(rest)
+	if len(matches) > 1 {
+		l.Status, _ = strconv.Atoi(matches[0])
+		l.Size, _ = strconv.ParseUint(matches[1], 10, 64)
+	}
+	l.Referer, rest = takeQuoted(rest)
+	l.UA, _ = takeQuoted(rest)
 	l.breakdownRequest()
 	return l, nil
+}
+
+func takeQuoted(line string) (string, string) {
+	if line == "" {
+		return "", ""
+	}
+	i := 0
+	for ; i < len(line); i++ {
+		if line[i] == '"' {
+			i++
+			break
+		}
+	}
+	if i == len(line) {
+		return "", ""
+	}
+	buf := &bytes.Buffer{}
+	escaped := false
+	for ; i < len(line); i++ {
+		c := line[i]
+		if !escaped {
+			if c == '"' {
+				break
+			}
+			if c == '\\' {
+				escaped = true
+				continue
+			}
+		}
+		if !escaped {
+			buf.WriteByte(c)
+			continue
+		}
+		escaped = false
+		switch c {
+		case 'n':
+			buf.WriteByte('\n')
+		case 't':
+			buf.WriteByte('\t')
+		case '\\':
+			buf.WriteByte('\\')
+		case '"':
+			buf.WriteByte('"')
+		default:
+			buf.WriteByte(c)
+		}
+	}
+	return buf.String(), line[i+1:]
 }
