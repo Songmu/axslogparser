@@ -129,7 +129,7 @@ var parseTests = []struct {
 		},
 	},
 	{
-		Name:  "unescape(trailing space after escaped double quote) (TODO)",
+		Name:  "[Apache] unescape(trailing space after escaped double quote)",
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET /?foo=bar HTTP/1.1" 200 741 "\" "`,
 		Output: Log{
 			Host:     "10.0.0.11",
