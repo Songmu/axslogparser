@@ -14,12 +14,12 @@ type Apache struct {
 }
 
 var logRe = regexp.MustCompile(
-	`^(?:(?P<vhost>\S+)\s)?` + // %v(The canonical ServerName/virtual host)
-		`(?P<remote_addr>\S+)\s` + // %h(Remote Hostname) $remote_addr
-		`\S+\s+` + // %l(Remote Logname)
-		`(?P<remote_user>\S+)\s` + // $remote_user
-		`\[(?P<time_local>\d{2}/\w{3}/\d{2}(?:\d{2}:){3}\d{2} [-+]\d{4})\]\s` + // $time_local
-		`(?P<rest>.*)`)
+	`^(?:(\S+)\s)?` + // %v(The canonical ServerName/virtual host)
+		`(\S+)\s` + // %h(Remote Hostname) $remote_addr
+		`-\s` + // %l(Remote Logname)
+		`(\S+)\s` + // $remote_user
+		`\[(\d{2}/\w{3}/\d{2}(?:\d{2}:){3}\d{2} [-+]\d{4})\]\s` + // $time_local
+		`(.*)`)
 
 // Parse for Parser interface
 func (ap *Apache) Parse(line string) (*Log, error) {
@@ -27,23 +27,15 @@ func (ap *Apache) Parse(line string) (*Log, error) {
 	if len(matches) < 1 {
 		return nil, fmt.Errorf("not matched")
 	}
-	var rest string
-	l := &Log{}
-	for i, name := range logRe.SubexpNames() {
-		switch name {
-		case "vhost":
-			l.VirtualHost = matches[i]
-		case "remote_addr":
-			l.Host = matches[i]
-		case "remote_user":
-			l.User = matches[i]
-		case "time_local":
-			l.Time, _ = time.Parse(clfTimeLayout, matches[i])
-		case "rest":
-			rest = matches[i]
-		}
+	l := &Log{
+		VirtualHost: matches[1],
+		Host:        matches[2],
+		User:        matches[3],
 	}
-	l.Request, rest = takeQuoted(rest)
+	l.Time, _ = time.Parse(clfTimeLayout, matches[4])
+	rest := matches[5]
+
+	l.Request, rest = takeQuoted(matches[5])
 	matches = strings.Fields(rest)
 	if len(matches) > 1 {
 		l.Status, _ = strconv.Atoi(matches[0])
