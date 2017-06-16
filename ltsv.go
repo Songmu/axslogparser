@@ -23,7 +23,7 @@ func (lv *LTSV) Parse(line string) (*Log, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse ltsvlog")
 	}
-	l.Time, _ = time.Parse(clfTimeLayout, l.TimeStr)
+	l.Time, _ = time.Parse(clfTimeLayout, strings.Trim(l.TimeStr, "[]"))
 	l.breakdownRequest()
 	return l, nil
 }

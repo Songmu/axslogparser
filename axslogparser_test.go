@@ -146,7 +146,7 @@ var parseTests = []struct {
 	},
 	{
 		Name: "ltsv with null apptime",
-		Input: "time:08/Mar/2017:14:12:40 +0900\t" +
+		Input: "time:[08/Mar/2017:14:12:40 +0900]\t" +
 			"host:192.0.2.1\t" +
 			"req:POST /api/v0/tsdb HTTP/1.1\t" +
 			"status:200\t" +
@@ -160,7 +160,7 @@ var parseTests = []struct {
 			VirtualHost: "mackerel.io",
 			Host:        "192.0.2.1",
 			Time:        time.Date(2017, time.March, 8, 14, 12, 40, 0, loc),
-			TimeStr:     "08/Mar/2017:14:12:40 +0900",
+			TimeStr:     "[08/Mar/2017:14:12:40 +0900]",
 			Request:     "POST /api/v0/tsdb HTTP/1.1",
 			Status:      200,
 			Size:        36,
