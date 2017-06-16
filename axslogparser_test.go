@@ -102,6 +102,22 @@ var parseTests = []struct {
 		},
 	},
 	{
+		Name:  "[Apache] unescape(trailing space after escaped double quote)",
+		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET /?foo=bar HTTP/1.1" 200 741 "\" "`,
+		Output: Log{
+			Host:     "10.0.0.11",
+			User:     "-",
+			Time:     time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
+			Request:  "GET /?foo=bar HTTP/1.1",
+			Status:   200,
+			Size:     741,
+			Referer:  `" `,
+			Method:   "GET",
+			URI:      "/?foo=bar",
+			Protocol: "HTTP/1.1",
+		},
+	},
+	{
 		Name: "ltsv",
 		Input: "time:08/Mar/2017:14:12:40 +0900\t" +
 			"host:192.0.2.1\t" +
@@ -129,19 +145,31 @@ var parseTests = []struct {
 		},
 	},
 	{
-		Name:  "[Apache] unescape(trailing space after escaped double quote)",
-		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET /?foo=bar HTTP/1.1" 200 741 "\" "`,
+		Name: "ltsv with null apptime",
+		Input: "time:[08/Mar/2017:14:12:40 +0900]\t" +
+			"host:192.0.2.1\t" +
+			"req:POST /api/v0/tsdb HTTP/1.1\t" +
+			"status:200\t" +
+			"size:36\t" +
+			"ua:mackerel-agent/0.31.2 (Revision 775fad2)\t" +
+			"reqtime:0.087\t" +
+			"taken_sec:0.087\t" +
+			"apptime:-\t" +
+			"vhost:mackerel.io",
 		Output: Log{
-			Host:     "10.0.0.11",
-			User:     "-",
-			Time:     time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
-			Request:  "GET /?foo=bar HTTP/1.1",
-			Status:   200,
-			Size:     741,
-			Referer:  `" `,
-			Method:   "GET",
-			URI:      "/?foo=bar",
-			Protocol: "HTTP/1.1",
+			VirtualHost: "mackerel.io",
+			Host:        "192.0.2.1",
+			Time:        time.Date(2017, time.March, 8, 14, 12, 40, 0, loc),
+			TimeStr:     "[08/Mar/2017:14:12:40 +0900]",
+			Request:     "POST /api/v0/tsdb HTTP/1.1",
+			Status:      200,
+			Size:        36,
+			UA:          "mackerel-agent/0.31.2 (Revision 775fad2)",
+			ReqTime:     pfloat64(0.087),
+			TakenSec:    pfloat64(0.087),
+			Method:      "POST",
+			URI:         "/api/v0/tsdb",
+			Protocol:    "HTTP/1.1",
 		},
 	},
 }
