@@ -26,21 +26,21 @@ type Log struct {
 	AppTime      *float64
 	TakenSec     *float64 `ltsv:"taken_sec"` // Hatena specific
 	ForwardedFor string
-	URI          string
+	RequestURI   string `ltsv:"uri"`
 	Protocol     string
 	Method       string
 }
 
 func (l *Log) breakdownRequest() {
-	if l.URI != "" && l.Protocol != "" && l.Method != "" {
+	if l.RequestURI != "" && l.Protocol != "" && l.Method != "" {
 		return
 	}
 	stuff := strings.Fields(l.Request)
 	if len(stuff) > 0 && l.Method == "" {
 		l.Method = stuff[0]
 	}
-	if len(stuff) > 1 && l.URI == "" {
-		l.URI = stuff[1]
+	if len(stuff) > 1 && l.RequestURI == "" {
+		l.RequestURI = stuff[1]
 	}
 	if len(stuff) > 2 && l.Protocol == "" {
 		l.Protocol = stuff[2]
