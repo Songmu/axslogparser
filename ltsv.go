@@ -1,7 +1,6 @@
 package axslogparser
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -15,9 +14,6 @@ type LTSV struct {
 
 // Parse for Parser interface
 func (lv *LTSV) Parse(line string) (*Log, error) {
-	for _, k := range []string{"apptime", "reqtime", "taken_sec"} {
-		line = strings.Replace(line, fmt.Sprintf("\t%s:-", k), "", 1)
-	}
 	l := &Log{}
 	err := ltsv.Unmarshal([]byte(line), l)
 	if err != nil {
