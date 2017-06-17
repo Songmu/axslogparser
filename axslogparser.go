@@ -21,7 +21,7 @@ type Log struct {
 	Status       int
 	Size         uint64
 	Referer      string
-	UA           string
+	UserAgent    string `ltsv:"ua"`
 	ReqTime      *float64
 	AppTime      *float64
 	TakenSec     *float64 `ltsv:"taken_sec"` // Hatena specific
