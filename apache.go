@@ -42,7 +42,7 @@ func (ap *Apache) Parse(line string) (*Log, error) {
 		l.Size, _ = strconv.ParseUint(matches[1], 10, 64)
 	}
 	l.Referer, rest = takeQuoted(rest)
-	l.UA, _ = takeQuoted(rest)
+	l.UserAgent, _ = takeQuoted(rest)
 	l.breakdownRequest()
 	return l, nil
 }
