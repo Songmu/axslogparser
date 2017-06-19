@@ -1,6 +1,7 @@
 package axslogparser
 
 import (
+	"fmt"
 	"strings"
 	"time"
 )
@@ -31,11 +32,14 @@ type Log struct {
 	Method       string
 }
 
-func (l *Log) breakdownRequest() {
+func (l *Log) breakdownRequest() error {
 	if l.RequestURI != "" && l.Protocol != "" && l.Method != "" {
-		return
+		return nil
 	}
 	stuff := strings.Fields(l.Request)
+	if len(stuff) != 3 {
+		return fmt.Errorf("invalid request: %s", l.Request)
+	}
 	if len(stuff) > 0 && l.Method == "" {
 		l.Method = stuff[0]
 	}
@@ -45,7 +49,7 @@ func (l *Log) breakdownRequest() {
 	if len(stuff) > 2 && l.Protocol == "" {
 		l.Protocol = stuff[2]
 	}
-	return
+	return nil
 }
 
 const clfTimeLayout = "02/Jan/2006:15:04:05 -0700"

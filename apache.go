@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // Apache log parser
@@ -25,7 +27,7 @@ var logRe = regexp.MustCompile(
 func (ap *Apache) Parse(line string) (*Log, error) {
 	matches := logRe.FindStringSubmatch(line)
 	if len(matches) < 1 {
-		return nil, fmt.Errorf("not matched")
+		return nil, fmt.Errorf("faild to parse apachelog: %s", line)
 	}
 	l := &Log{
 		VirtualHost: matches[1],
@@ -33,17 +35,23 @@ func (ap *Apache) Parse(line string) (*Log, error) {
 		User:        matches[3],
 	}
 	l.Time, _ = time.Parse(clfTimeLayout, matches[4])
-	rest := matches[5]
+	var rest string
 
 	l.Request, rest = takeQuoted(matches[5])
-	matches = strings.Fields(rest)
-	if len(matches) > 1 {
-		l.Status, _ = strconv.Atoi(matches[0])
-		l.Size, _ = strconv.ParseUint(matches[1], 10, 64)
+	if err := l.breakdownRequest(); err != nil {
+		return nil, errors.Wrapf(err, "failed to parse apachelog: %s", line)
 	}
+	matches = strings.Fields(rest)
+	if len(matches) < 2 {
+		return nil, fmt.Errorf("failed to parse apachelog: %s", line)
+	}
+	l.Status, _ = strconv.Atoi(matches[0])
+	if l.Status < 100 || 600 <= l.Status {
+		return nil, fmt.Errorf("status in apachelog is invalid: %s, log: %s", matches[0], line)
+	}
+	l.Size, _ = strconv.ParseUint(matches[1], 10, 64)
 	l.Referer, rest = takeQuoted(rest)
 	l.UserAgent, _ = takeQuoted(rest)
-	l.breakdownRequest()
 	return l, nil
 }
 
