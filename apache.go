@@ -27,7 +27,7 @@ var logRe = regexp.MustCompile(
 func (ap *Apache) Parse(line string) (*Log, error) {
 	matches := logRe.FindStringSubmatch(line)
 	if len(matches) < 1 {
-		return nil, fmt.Errorf("faild to parse apachelog: %s", line)
+		return nil, fmt.Errorf("faild to parse apachelog (not matched): %s", line)
 	}
 	l := &Log{
 		VirtualHost: matches[1],
@@ -39,15 +39,15 @@ func (ap *Apache) Parse(line string) (*Log, error) {
 
 	l.Request, rest = takeQuoted(matches[5])
 	if err := l.breakdownRequest(); err != nil {
-		return nil, errors.Wrapf(err, "failed to parse apachelog: %s", line)
+		return nil, errors.Wrapf(err, "failed to parse apachelog (invalid request): %s", line)
 	}
 	matches = strings.Fields(rest)
 	if len(matches) < 2 {
-		return nil, fmt.Errorf("failed to parse apachelog: %s", line)
+		return nil, fmt.Errorf("failed to parse apachelog (invalid status or size): %s", line)
 	}
 	l.Status, _ = strconv.Atoi(matches[0])
 	if l.Status < 100 || 600 <= l.Status {
-		return nil, fmt.Errorf("status in apachelog is invalid: %s, log: %s", matches[0], line)
+		return nil, fmt.Errorf("failed to parse apachelog (invalid status: %s): %s", matches[0], line)
 	}
 	l.Size, _ = strconv.ParseUint(matches[1], 10, 64)
 	l.Referer, rest = takeQuoted(rest)
