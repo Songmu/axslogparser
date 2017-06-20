@@ -21,7 +21,7 @@ func (lv *LTSV) Parse(line string) (*Log, error) {
 	}
 	l.Time, _ = time.Parse(clfTimeLayout, strings.Trim(l.TimeStr, "[]"))
 	if err := l.breakdownRequest(); err != nil {
-		return nil, errors.Wrap(err, "failed to parse ltsvlog")
+		return nil, errors.Wrap(err, "failed to parse ltsvlog: %s")
 	}
 	return l, nil
 }
