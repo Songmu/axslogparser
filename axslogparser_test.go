@@ -54,6 +54,21 @@ var parseTests = []struct {
 		},
 	},
 	{
+		Name:  "[Apache] common (tab delimiter)",
+		Input: "10.0.0.11\t-\t-\t[11/Jun/2017:05:56:04 +0900]\t" + `"GET / HTTP/1.1"` + "\t200\t741",
+		Output: Log{
+			Host:       "10.0.0.11",
+			User:       "-",
+			Time:       time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
+			Request:    "GET / HTTP/1.1",
+			Status:     200,
+			Size:       741,
+			Method:     "GET",
+			RequestURI: "/",
+			Protocol:   "HTTP/1.1",
+		},
+	},
+	{
 		Name:  "[Apache] common with empty response",
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 204 -`,
 		Output: Log{
