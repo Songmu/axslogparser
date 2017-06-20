@@ -15,6 +15,15 @@ axslogparser
 
 An accesslog parser supports apache log (common and combined) and ltsv accesslog (http://ltsv.org).
 
+## Supported Formats
+
+- Apache Logs (also cared in the case of using tab character as delimiter)
+  - Common log format
+  - Common log format with vhost
+  - Combined log format
+  - Combined log format with extra fields
+- LTSV Accesslog format according to http://ltsv.org
+
 ## Author
 
 [Songmu](https://github.com/Songmu)
