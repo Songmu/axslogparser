@@ -172,6 +172,36 @@ var parseTests = []struct {
 			Protocol:    "HTTP/1.1",
 		},
 	},
+	{
+		Name: "ltsv filled uri, protocol and method",
+		Input: "time:08/Mar/2017:14:12:40 +0900\t" +
+			"host:192.0.2.1\t" +
+			"req:POST /api/v0/tsdb HTTP/1.1\t" +
+			"status:200\t" +
+			"size:36\t" +
+			"ua:mackerel-agent/0.31.2 (Revision 775fad2)\t" +
+			"uri:/api/\t" +
+			"protocol:HTTP/1.0\t" +
+			"method:GET\t" +
+			"reqtime:0.087\t" +
+			"taken_sec:0.087\t" +
+			"vhost:mackerel.io",
+		Output: Log{
+			VirtualHost: "mackerel.io",
+			Host:        "192.0.2.1",
+			Time:        time.Date(2017, time.March, 8, 14, 12, 40, 0, loc),
+			TimeStr:     "08/Mar/2017:14:12:40 +0900",
+			Request:     "POST /api/v0/tsdb HTTP/1.1",
+			Status:      200,
+			Size:        36,
+			UserAgent:   "mackerel-agent/0.31.2 (Revision 775fad2)",
+			ReqTime:     pfloat64(0.087),
+			TakenSec:    pfloat64(0.087),
+			Method:      "GET",
+			RequestURI:  "/api/",
+			Protocol:    "HTTP/1.0",
+		},
+	},
 }
 
 func TestParse(t *testing.T) {
