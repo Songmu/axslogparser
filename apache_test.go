@@ -56,7 +56,7 @@ func TestParse_error(t *testing.T) {
 	for _, tt := range parseErrorTests {
 		t.Logf("testing: %s", tt.Name)
 		if _, err := psr.Parse(tt.Input); err == nil {
-			t.Errorf("%s: error should be occured but nil")
+			t.Errorf("%s: error should be occured but nil", tt.Name)
 		} else if !strings.Contains(err.Error(), tt.ContainsString) {
 			t.Errorf("%s: error should be contained %q, but: %s", tt.Name, tt.ContainsString, err)
 		}
