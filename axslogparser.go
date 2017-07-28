@@ -57,7 +57,7 @@ const clfTimeLayout = "02/Jan/2006:15:04:05 -0700"
 // GuessParser guesses the parser from line
 func GuessParser(line string) (Parser, *Log, error) {
 	var p Parser
-	if strings.Contains(line, "\thost:") {
+	if strings.Contains(line, "\thost:") || strings.Contains(line, "\ttime:") {
 		p = &LTSV{}
 		l, err := p.Parse(line)
 		if err == nil {
