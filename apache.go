@@ -27,7 +27,7 @@ var logRe = regexp.MustCompile(
 func (ap *Apache) Parse(line string) (*Log, error) {
 	matches := logRe.FindStringSubmatch(line)
 	if len(matches) < 1 {
-		return nil, fmt.Errorf("faild to parse apachelog (not matched): %s", line)
+		return nil, fmt.Errorf("failed to parse apachelog (not matched): %s", line)
 	}
 	l := &Log{
 		VirtualHost: matches[1],
