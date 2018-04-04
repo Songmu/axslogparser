@@ -18,7 +18,7 @@ type Apache struct {
 var logRe = regexp.MustCompile(
 	`^(?:(\S+)\s)?` + // %v(The canonical ServerName/virtual host)
 		`(\S+)\s` + // %h(Remote Hostname) $remote_addr
-		`-\s` + // %l(Remote Logname)
+		`(\S+)\s` + // %l(Remote Logname)
 		`(\S+)\s` + // $remote_user
 		`\[(\d{2}/\w{3}/\d{2}(?:\d{2}:){3}\d{2} [-+]\d{4})\]\s` + // $time_local
 		`(.*)`)
@@ -32,12 +32,13 @@ func (ap *Apache) Parse(line string) (*Log, error) {
 	l := &Log{
 		VirtualHost: matches[1],
 		Host:        matches[2],
-		User:        matches[3],
+		RemoteUser:  matches[3],
+		User:        matches[4],
 	}
-	l.Time, _ = time.Parse(clfTimeLayout, matches[4])
+	l.Time, _ = time.Parse(clfTimeLayout, matches[5])
 	var rest string
 
-	l.Request, rest = takeQuoted(matches[5])
+	l.Request, rest = takeQuoted(matches[6])
 	if err := l.breakdownRequest(); err != nil {
 		return nil, errors.Wrapf(err, "failed to parse apachelog (invalid request): %s", line)
 	}

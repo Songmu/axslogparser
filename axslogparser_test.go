@@ -26,6 +26,7 @@ var parseTests = []struct {
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 200 741 "-" "mackerel-http-checker/0.0.1" "-"`,
 		Output: Log{
 			Host:       "10.0.0.11",
+			RemoteUser: "-",
 			User:       "-",
 			Time:       time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
 			Request:    "GET / HTTP/1.1",
@@ -43,6 +44,7 @@ var parseTests = []struct {
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 200 741`,
 		Output: Log{
 			Host:       "10.0.0.11",
+			RemoteUser: "-",
 			User:       "-",
 			Time:       time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
 			Request:    "GET / HTTP/1.1",
@@ -58,6 +60,7 @@ var parseTests = []struct {
 		Input: "10.0.0.11\t-\t-\t[11/Jun/2017:05:56:04 +0900]\t" + `"GET / HTTP/1.1"` + "\t200\t741",
 		Output: Log{
 			Host:       "10.0.0.11",
+			RemoteUser: "-",
 			User:       "-",
 			Time:       time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
 			Request:    "GET / HTTP/1.1",
@@ -73,6 +76,7 @@ var parseTests = []struct {
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 204 -`,
 		Output: Log{
 			Host:       "10.0.0.11",
+			RemoteUser: "-",
 			User:       "-",
 			Time:       time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
 			Request:    "GET / HTTP/1.1",
@@ -89,6 +93,7 @@ var parseTests = []struct {
 		Output: Log{
 			VirtualHost: "log.example.com",
 			Host:        "10.0.0.11",
+			RemoteUser: "-",
 			User:        "-",
 			Time:        time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
 			Request:     "GET / HTTP/1.1",
@@ -104,6 +109,7 @@ var parseTests = []struct {
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET /?foo=bar HTTP/1.1" 200 741 "\\\thoge" "UserAgent \"fake\""`,
 		Output: Log{
 			Host:       "10.0.0.11",
+			RemoteUser: "-",
 			User:       "-",
 			Time:       time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
 			Request:    "GET /?foo=bar HTTP/1.1",
@@ -121,6 +127,7 @@ var parseTests = []struct {
 		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET /?foo=bar HTTP/1.1" 200 741 "\" "`,
 		Output: Log{
 			Host:       "10.0.0.11",
+			RemoteUser: "-",
 			User:       "-",
 			Time:       time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
 			Request:    "GET /?foo=bar HTTP/1.1",
