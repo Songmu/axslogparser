@@ -74,7 +74,7 @@ func TestParse_error(t *testing.T) {
 	for _, tt := range parseSuccessTests {
 		t.Logf("testing: %s", tt.Name)
 		if _, err := psr.Parse(tt.Input); err != nil {
-			t.Errorf("%s: error should not be occured but: %s", err.Error())
+			t.Errorf("%s: error should not be occured but: %s", tt.Name, err.Error())
 		}
 	}
 }
