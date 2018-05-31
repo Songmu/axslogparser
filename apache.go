@@ -16,7 +16,7 @@ type Apache struct {
 }
 
 var logRe = regexp.MustCompile(
-	`^(?:(\S+)\s)?` + // %v(The canonical ServerName/virtual host)
+	`^(?:([\S,\s]+)\s)?` + // %v(The canonical ServerName/virtual host) - 192.168.0.1 or 192.168.0.1,192.168.0.2, 192.168.0.3
 		`(\S+)\s` + // %h(Remote Hostname) $remote_addr
 		`(\S+)\s` + // %l(Remote Logname)
 		`(\S+)\s` + // $remote_user
