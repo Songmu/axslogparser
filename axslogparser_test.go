@@ -121,7 +121,7 @@ var parseTests = []struct {
 		},
 	},
 	{
-		Name:  "(TODO) [Apache] common with virtual host and username contains white space",
+		Name:  "[Apache] common with virtual host and username contains white space",
 		Input: `test.example.com 10.0.0.11 - Songmu Yaxing [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 200 741`,
 		Output: Log{
 			VirtualHost:   "test.example.com",
