@@ -93,11 +93,44 @@ var parseTests = []struct {
 		Output: Log{
 			VirtualHost: "log.example.com",
 			Host:        "10.0.0.11",
-			RemoteUser: "-",
+			RemoteUser:  "-",
 			User:        "-",
 			Time:        time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
 			Request:     "GET / HTTP/1.1",
 			Status:      404,
+			Size:        741,
+			Method:      "GET",
+			RequestURI:  "/",
+			Protocol:    "HTTP/1.1",
+		},
+	},
+	{
+		Name:  "[Apache] common with username contains white space",
+		Input: `10.0.0.11 - Songmu Yaxing [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 200 741`,
+		Output: Log{
+			Host:       "10.0.0.11",
+			RemoteUser: "-",
+			User:       "Songmu Yaxing",
+			Time:       time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
+			Request:    "GET / HTTP/1.1",
+			Status:     200,
+			Size:       741,
+			Method:     "GET",
+			RequestURI: "/",
+			Protocol:   "HTTP/1.1",
+		},
+	},
+	{
+		Name:  "(TODO) [Apache] common with virtual host and username contains white space",
+		Input: `test.example.com 10.0.0.11 - Songmu Yaxing [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 200 741`,
+		Output: Log{
+			VirtualHost: "test.example.com",
+			Host:        "10.0.0.11",
+			RemoteUser:  "-",
+			User:        "Songmu Yaxing",
+			Time:        time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
+			Request:     "GET / HTTP/1.1",
+			Status:      200,
 			Size:        741,
 			Method:      "GET",
 			RequestURI:  "/",
@@ -255,17 +288,19 @@ var parseTests = []struct {
 
 func TestParse(t *testing.T) {
 	for _, tt := range parseTests {
-		t.Logf("testing: %s\n", tt.Name)
-		if strings.Contains(tt.Name, "(TODO)") {
-			t.Skipf("skip test: %s", tt.Name)
-		}
-		l, err := Parse(tt.Input)
-		if err != nil {
-			t.Errorf("%s(err): error should be nil but: %+v", tt.Name, err)
-			continue
-		}
-		if !reflect.DeepEqual(*l, tt.Output) {
-			t.Errorf("%s(parse): \n out =%+v\n want %+v", tt.Name, *l, tt.Output)
-		}
+		t.Run(tt.Name, func(t *testing.T) {
+			t.Logf("testing: %s\n", tt.Name)
+			if strings.Contains(tt.Name, "(TODO)") {
+				t.Skipf("skip test: %s", tt.Name)
+			}
+			l, err := Parse(tt.Input)
+			if err != nil {
+				t.Errorf("%s(err): error should be nil but: %+v", tt.Name, err)
+				return
+			}
+			if !reflect.DeepEqual(*l, tt.Output) {
+				t.Errorf("%s(parse): \n out =%+v\n want %+v", tt.Name, *l, tt.Output)
+			}
+		})
 	}
 }
