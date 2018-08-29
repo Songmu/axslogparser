@@ -13,24 +13,24 @@ type Parser interface {
 
 // Log is the struct stored parsed result of single line of accesslog
 type Log struct {
-	VirtualHost  string `ltsv:"vhost"`
-	Host         string
-	RemoteUser   string
-	User         string
-	Time         time.Time `ltsv:"-"`
-	TimeStr      string    `ltsv:"time"`
-	Request      string    `ltsv:"req"`
-	Status       int
-	Size         uint64
-	Referer      string
-	UserAgent    string `ltsv:"ua"`
-	ReqTime      *float64
-	AppTime      *float64
-	TakenSec     *float64 `ltsv:"taken_sec"` // Hatena specific
-	ForwardedFor string
-	RequestURI   string `ltsv:"uri"`
-	Protocol     string
-	Method       string
+	VirtualHost   string `ltsv:"vhost"`
+	Host          string
+	RemoteLogname string `ltsv:"ident"`
+	User          string
+	Time          time.Time `ltsv:"-"`
+	TimeStr       string    `ltsv:"time"`
+	Request       string    `ltsv:"req"`
+	Status        int
+	Size          uint64
+	Referer       string
+	UserAgent     string `ltsv:"ua"`
+	ReqTime       *float64
+	AppTime       *float64
+	TakenSec      *float64 `ltsv:"taken_sec"` // Hatena specific
+	ForwardedFor  string
+	RequestURI    string `ltsv:"uri"`
+	Protocol      string
+	Method        string
 }
 
 func (l *Log) breakdownRequest() error {

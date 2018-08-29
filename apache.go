@@ -30,16 +30,16 @@ func (ap *Apache) Parse(line string) (*Log, error) {
 		return nil, fmt.Errorf("failed to parse apachelog (not matched): %s", line)
 	}
 	l := &Log{
-		VirtualHost: matches[1],
-		Host:        matches[2],
-		RemoteUser:  matches[3],
-		User:        matches[4],
+		VirtualHost:   matches[1],
+		Host:          matches[2],
+		RemoteLogname: matches[3],
+		User:          matches[4],
 	}
 	if l.Host == "-" && l.VirtualHost != "" {
 		l.Host = l.VirtualHost
 		l.VirtualHost = ""
-		l.User = fmt.Sprintf("%s %s", l.RemoteUser, l.User)
-		l.RemoteUser = "-"
+		l.User = fmt.Sprintf("%s %s", l.RemoteLogname, l.User)
+		l.RemoteLogname = "-"
 	}
 
 	l.Time, _ = time.Parse(clfTimeLayout, matches[5])
