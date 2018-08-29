@@ -15,7 +15,7 @@ type Parser interface {
 type Log struct {
 	VirtualHost   string `ltsv:"vhost"`
 	Host          string
-	RemoteLogname string
+	RemoteLogname string `ltsv:"ident"`
 	User          string
 	Time          time.Time `ltsv:"-"`
 	TimeStr       string    `ltsv:"time"`
