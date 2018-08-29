@@ -288,17 +288,19 @@ var parseTests = []struct {
 
 func TestParse(t *testing.T) {
 	for _, tt := range parseTests {
-		t.Logf("testing: %s\n", tt.Name)
-		if strings.Contains(tt.Name, "(TODO)") {
-			t.Skipf("skip test: %s", tt.Name)
-		}
-		l, err := Parse(tt.Input)
-		if err != nil {
-			t.Errorf("%s(err): error should be nil but: %+v", tt.Name, err)
-			continue
-		}
-		if !reflect.DeepEqual(*l, tt.Output) {
-			t.Errorf("%s(parse): \n out =%+v\n want %+v", tt.Name, *l, tt.Output)
-		}
+		t.Run(tt.Name, func(t *testing.T) {
+			t.Logf("testing: %s\n", tt.Name)
+			if strings.Contains(tt.Name, "(TODO)") {
+				t.Skipf("skip test: %s", tt.Name)
+			}
+			l, err := Parse(tt.Input)
+			if err != nil {
+				t.Errorf("%s(err): error should be nil but: %+v", tt.Name, err)
+				return
+			}
+			if !reflect.DeepEqual(*l, tt.Output) {
+				t.Errorf("%s(parse): \n out =%+v\n want %+v", tt.Name, *l, tt.Output)
+			}
+		})
 	}
 }
