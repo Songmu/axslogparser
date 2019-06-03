@@ -1,5 +1,10 @@
 # Changelog
 
+## [v1.2.0](https://github.com/Songmu/axslogparser/compare/v1.1.0...v1.2.0) (2019-06-03)
+
+* Add Loose option to ignore non-fatal formatting errors [#18](https://github.com/Songmu/axslogparser/pull/18) ([motemen](https://github.com/motemen))
+* remove unused %s in errors.Wrap [#16](https://github.com/Songmu/axslogparser/pull/16) ([itchyny](https://github.com/itchyny))
+
 ## [v1.1.0](https://github.com/Songmu/axslogparser/compare/v1.0.0...v1.1.0) (2018-08-29)
 
 * [incompatible] [bugfix] s/RemoteUser/RemoteLogname/g [#14](https://github.com/Songmu/axslogparser/pull/14) ([Songmu](https://github.com/Songmu))
