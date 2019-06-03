@@ -38,11 +38,13 @@ var parseErrorTests = []struct {
 	Name           string
 	Input          string
 	ContainsString string
+	HardError      bool
 }{
 	{
 		Name:           "broken",
 		Input:          "hoge",
 		ContainsString: "(not matched)",
+		HardError:      true,
 	},
 	{
 		Name:           "invalid request",
@@ -53,6 +55,7 @@ var parseErrorTests = []struct {
 		Name:           "invalid request",
 		Input:          `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 200`,
 		ContainsString: "(invalid status or size)",
+		HardError:      true,
 	},
 	{
 		Name:           "invalid request",
@@ -69,6 +72,34 @@ func TestParse_error(t *testing.T) {
 			t.Errorf("%s: error should be occured but nil", tt.Name)
 		} else if !strings.Contains(err.Error(), tt.ContainsString) {
 			t.Errorf("%s: error should be contained %q, but: %s", tt.Name, tt.ContainsString, err)
+		}
+	}
+	for _, tt := range parseSuccessTests {
+		t.Logf("testing: %s", tt.Name)
+		if _, err := psr.Parse(tt.Input); err != nil {
+			t.Errorf("%s: error should not be occured but: %s", tt.Name, err.Error())
+		}
+	}
+}
+
+func TestParse_loose(t *testing.T) {
+	psr := &Apache{Loose: true}
+	for _, tt := range parseErrorTests {
+		t.Logf("testing: %s", tt.Name)
+		if tt.HardError {
+			if _, err := psr.Parse(tt.Input); err == nil {
+				if tt.HardError {
+					t.Errorf("%s: error should be occured but nil", tt.Name)
+				}
+			} else if !strings.Contains(err.Error(), tt.ContainsString) {
+				t.Errorf("%s: error should be contained %q, but: %s", tt.Name, tt.ContainsString, err)
+			}
+		} else {
+			if _, err := psr.Parse(tt.Input); err != nil {
+				if err != nil {
+					t.Errorf("%s: error should not be occured but: %s", tt.Name, err.Error())
+				}
+			}
 		}
 	}
 	for _, tt := range parseSuccessTests {
