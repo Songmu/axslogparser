@@ -1,17 +1,27 @@
-test: deps
-	go test ./...
+u := $(if $(update),-u)
 
+export GO111MODULE=on
+
+.PHONY: deps
 deps:
-	go get -d -v -t ./...
-	go get golang.org/x/lint/golint
-	go get golang.org/x/tools/cmd/cover
-	go get github.com/mattn/goveralls
+	go get ${u} -d
 
-lint: deps
-	go vet ./...
-	golint -set_exit_status ./...
 
-cover: deps
+.PHONY: devel-deps
+devel-deps: deps
+	GO111MODULE=off go get ${u} \
+	  golang.org/x/lint/golint            \
+	  github.com/mattn/goveralls          \
+	  github.com/Songmu/godzil/cmd/godzil
+
+.PHONY: test
+test: deps
+	go test
+
+.PHONY: cover
+cover: devel-deps
 	goveralls
 
-.PHONY: test deps lint cover
+.PHONY: release
+release: devel-deps
+	godzil release
