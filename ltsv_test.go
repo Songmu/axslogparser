@@ -9,11 +9,13 @@ var parseLTSVErrorTests = []struct {
 	Name           string
 	Input          string
 	ContainsString string
+	HardError      bool
 }{
 	{
 		Name:           "broken",
 		Input:          "hoge",
 		ContainsString: "(not a ltsv)",
+		HardError:      true,
 	},
 	{
 		Name: "invalid request",
@@ -38,6 +40,28 @@ func TestLTSV_ParseError(t *testing.T) {
 			t.Errorf("%s: error should be occured but nil", tt.Name)
 		} else if !strings.Contains(err.Error(), tt.ContainsString) {
 			t.Errorf("%s: error should be contained %q, but: %s", tt.Name, tt.ContainsString, err)
+		}
+	}
+}
+
+func TestLTSV_ParseError_loose(t *testing.T) {
+	psr := &LTSV{Loose: true}
+	for _, tt := range parseLTSVErrorTests {
+		t.Logf("testing: %s", tt.Name)
+		if tt.HardError {
+			if _, err := psr.Parse(tt.Input); err == nil {
+				if tt.HardError {
+					t.Errorf("%s: error should be occured but nil", tt.Name)
+				}
+			} else if !strings.Contains(err.Error(), tt.ContainsString) {
+				t.Errorf("%s: error should be contained %q, but: %s", tt.Name, tt.ContainsString, err)
+			}
+		} else {
+			if _, err := psr.Parse(tt.Input); err != nil {
+				if err != nil {
+					t.Errorf("%s: error should not be occured but: %s", tt.Name, err.Error())
+				}
+			}
 		}
 	}
 }

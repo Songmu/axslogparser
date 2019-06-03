@@ -13,6 +13,9 @@ import (
 
 // Apache log parser
 type Apache struct {
+	// If set to true, ignores non-fatal errors while parsing line,
+	// which may leave some fields empty or invalid.
+	Loose bool
 }
 
 var logRe = regexp.MustCompile(
@@ -46,7 +49,7 @@ func (ap *Apache) Parse(line string) (*Log, error) {
 	var rest string
 
 	l.Request, rest = takeQuoted(matches[6])
-	if err := l.breakdownRequest(); err != nil {
+	if err := l.breakdownRequest(); !ap.Loose && err != nil {
 		return nil, errors.Wrapf(err, "failed to parse apachelog (invalid request): %s", line)
 	}
 	matches = strings.Fields(rest)
@@ -54,8 +57,10 @@ func (ap *Apache) Parse(line string) (*Log, error) {
 		return nil, fmt.Errorf("failed to parse apachelog (invalid status or size): %s", line)
 	}
 	l.Status, _ = strconv.Atoi(matches[0])
-	if l.Status < 100 || 600 <= l.Status {
-		return nil, fmt.Errorf("failed to parse apachelog (invalid status: %s): %s", matches[0], line)
+	if !ap.Loose {
+		if l.Status < 100 || 600 <= l.Status {
+			return nil, fmt.Errorf("failed to parse apachelog (invalid status: %s): %s", matches[0], line)
+		}
 	}
 	l.Size, _ = strconv.ParseUint(matches[1], 10, 64)
 	l.Referer, rest = takeQuoted(rest)
