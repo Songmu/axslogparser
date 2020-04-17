@@ -30,6 +30,20 @@ var parseLTSVErrorTests = []struct {
 			"vhost:mackerel.io",
 		ContainsString: "(invalid request)",
 	},
+	{
+		Name: "unmarshal error",
+		Input: "time:08/Mar/2017:14:12:40 +0900\t" +
+			"host:192.0.2.1\t" +
+			"req:POST /api/v0/tsdb HTTP/1.1\t" +
+			"status:200\t" +
+			"size:36\t" +
+			"ua:mackerel-agent/0.31.2 (Revision 775fad2)\t" +
+			"reqtime:0.087\t" +
+			"taken_sec:0.087\t" +
+			"vhost:mackerel.io\t" +
+			"apptime:0.021, 0.042", // not a single number
+		ContainsString: "ltsv: cannot unmarshal",
+	},
 }
 
 func TestLTSV_ParseError(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Songmu/go-ltsv"
+	ltsv "github.com/Songmu/go-ltsv"
 	"github.com/pkg/errors"
 )
 
@@ -20,7 +20,9 @@ func (lv *LTSV) Parse(line string) (*Log, error) {
 	l := &Log{}
 	err := ltsv.Unmarshal([]byte(line), l)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to parse ltsvlog (not a ltsv): %s", line)
+		if _, ok := err.(ltsv.UnmarshalError); !(lv.Loose && ok) {
+			return nil, errors.Wrapf(err, "failed to parse ltsvlog (not a ltsv): %s", line)
+		}
 	}
 	l.Time, _ = time.Parse(clfTimeLayout, strings.Trim(l.TimeStr, "[]"))
 	if err := l.breakdownRequest(); !lv.Loose && err != nil {
