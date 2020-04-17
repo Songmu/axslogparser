@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.3.0](https://github.com/Songmu/axslogparser/compare/v1.2.0...v1.3.0) (2020-04-17)
+
+* Ignore LTSV unmarshal error if loose [#20](https://github.com/Songmu/axslogparser/pull/20) ([susisu](https://github.com/susisu))
+
 ## [v1.2.0](https://github.com/Songmu/axslogparser/compare/v1.1.0...v1.2.0) (2019-06-03)
 
 * Add Loose option to ignore non-fatal formatting errors [#18](https://github.com/Songmu/axslogparser/pull/18) ([motemen](https://github.com/motemen))
