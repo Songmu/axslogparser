@@ -304,3 +304,119 @@ func TestParse(t *testing.T) {
 		})
 	}
 }
+
+var parsersParseTests = []struct {
+	Name   string
+	Input  string
+	Output Log
+}{
+	{
+		Name:  "[Apache] common",
+		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / HTTP/1.1" 200 741`,
+		Output: Log{
+			Host:          "10.0.0.11",
+			RemoteLogname: "-",
+			User:          "-",
+			Time:          time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
+			Request:       "GET / HTTP/1.1",
+			Status:        200,
+			Size:          741,
+			Method:        "GET",
+			RequestURI:    "/",
+			Protocol:      "HTTP/1.1",
+		},
+	},
+	{
+		Name:  "[Apache] invalid request",
+		Input: `10.0.0.11 - - [11/Jun/2017:05:56:04 +0900] "GET / hoge HTTP/1.1" 200 741`,
+		Output: Log{
+			Host:          "10.0.0.11",
+			RemoteLogname: "-",
+			User:          "-",
+			Time:          time.Date(2017, time.June, 11, 5, 56, 4, 0, loc),
+			Request:       "GET / hoge HTTP/1.1",
+			Status:        200,
+			Size:          741,
+			Method:        "",
+			RequestURI:    "",
+			Protocol:      "",
+		},
+	},
+	{
+		Name: "LTSV",
+		Input: "time:08/Mar/2017:14:12:40 +0900\t" +
+			"host:192.0.2.1\t" +
+			"req:POST /api/v0/tsdb HTTP/1.1\t" +
+			"status:200\t" +
+			"size:36\t" +
+			"ua:mackerel-agent/0.31.2 (Revision 775fad2)\t" +
+			"reqtime:0.087\t" +
+			"taken_sec:0.087\t" +
+			"vhost:mackerel.io",
+		Output: Log{
+			VirtualHost: "mackerel.io",
+			Host:        "192.0.2.1",
+			Time:        time.Date(2017, time.March, 8, 14, 12, 40, 0, loc),
+			TimeStr:     "08/Mar/2017:14:12:40 +0900",
+			Request:     "POST /api/v0/tsdb HTTP/1.1",
+			Status:      200,
+			Size:        36,
+			UserAgent:   "mackerel-agent/0.31.2 (Revision 775fad2)",
+			ReqTime:     pfloat64(0.087),
+			TakenSec:    pfloat64(0.087),
+			Method:      "POST",
+			RequestURI:  "/api/v0/tsdb",
+			Protocol:    "HTTP/1.1",
+		},
+	},
+	{
+		Name: "LTSV (invalid request)",
+		Input: "time:08/Mar/2017:14:12:40 +0900\t" +
+			"host:192.0.2.1\t" +
+			"req:POST /api/v0/tsdb hoge HTTP/1.1\t" +
+			"status:200\t" +
+			"size:36\t" +
+			"ua:mackerel-agent/0.31.2 (Revision 775fad2)\t" +
+			"reqtime:0.087\t" +
+			"taken_sec:0.087\t" +
+			"vhost:mackerel.io",
+		Output: Log{
+			VirtualHost: "mackerel.io",
+			Host:        "192.0.2.1",
+			Time:        time.Date(2017, time.March, 8, 14, 12, 40, 0, loc),
+			TimeStr:     "08/Mar/2017:14:12:40 +0900",
+			Request:     "POST /api/v0/tsdb hoge HTTP/1.1",
+			Status:      200,
+			Size:        36,
+			UserAgent:   "mackerel-agent/0.31.2 (Revision 775fad2)",
+			ReqTime:     pfloat64(0.087),
+			TakenSec:    pfloat64(0.087),
+			Method:      "",
+			RequestURI:  "",
+			Protocol:    "",
+		},
+	},
+}
+
+func TestParsersParse(t *testing.T) {
+	ps := Parsers{
+		Apache: &Apache{Loose: true},
+		LTSV:   &LTSV{Loose: true},
+	}
+	for _, tt := range parsersParseTests {
+		t.Run(tt.Name, func(t *testing.T) {
+			t.Logf("testing: %s\n", tt.Name)
+			if strings.Contains(tt.Name, "(TODO)") {
+				t.Skipf("skip test: %s", tt.Name)
+			}
+			l, err := ps.Parse(tt.Input)
+			if err != nil {
+				t.Errorf("%s(err): error should be nil but: %+v", tt.Name, err)
+				return
+			}
+			if !reflect.DeepEqual(*l, tt.Output) {
+				t.Errorf("%s(parse): \n out =%+v\n want %+v", tt.Name, *l, tt.Output)
+			}
+		})
+	}
+}

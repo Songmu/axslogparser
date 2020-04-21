@@ -56,25 +56,43 @@ func (l *Log) breakdownRequest() error {
 
 const clfTimeLayout = "02/Jan/2006:15:04:05 -0700"
 
+// Parsers represents a set of available parsers
+type Parsers struct {
+	Apache *Apache
+	LTSV   *LTSV
+}
+
 // GuessParser guesses the parser from line
-func GuessParser(line string) (Parser, *Log, error) {
-	var p Parser
+func (ps Parsers) GuessParser(line string) (Parser, *Log, error) {
 	if strings.Contains(line, "\thost:") || strings.Contains(line, "\ttime:") {
-		p = &LTSV{}
-		l, err := p.Parse(line)
+		l, err := ps.LTSV.Parse(line)
 		if err == nil {
-			return p, l, err
+			return ps.LTSV, l, err
 		}
 	}
-	p = &Apache{}
-	l, err := p.Parse(line)
+	l, err := ps.Apache.Parse(line)
 	if err != nil {
 		return nil, nil, err
 	}
-	return p, l, nil
+	return ps.Apache, l, nil
 }
 
 // Parse log line
+func (ps Parsers) Parse(line string) (*Log, error) {
+	_, l, err := ps.GuessParser(line)
+	return l, err
+}
+
+// GuessParser guesses the parser from line, uses default parsers for each format
+func GuessParser(line string) (Parser, *Log, error) {
+	ps := Parsers{
+		LTSV:   &LTSV{},
+		Apache: &Apache{},
+	}
+	return ps.GuessParser(line)
+}
+
+// Parse log line using default parsers
 func Parse(line string) (*Log, error) {
 	_, l, err := GuessParser(line)
 	return l, err
