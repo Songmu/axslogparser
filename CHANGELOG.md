@@ -1,5 +1,10 @@
 # Changelog
 
+## [v1.4.0](https://github.com/Songmu/axslogparser/compare/v1.3.0...v1.4.0) (2020-06-24)
+
+* Make parsers used in GuessParser and Parse configurable [#22](https://github.com/Songmu/axslogparser/pull/22) ([susisu](https://github.com/susisu))
+* update travis settings [#21](https://github.com/Songmu/axslogparser/pull/21) ([Songmu](https://github.com/Songmu))
+
 ## [v1.3.0](https://github.com/Songmu/axslogparser/compare/v1.2.0...v1.3.0) (2020-04-17)
 
 * Ignore LTSV unmarshal error if loose [#20](https://github.com/Songmu/axslogparser/pull/20) ([susisu](https://github.com/susisu))
